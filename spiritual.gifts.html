@@ -1987,11 +1987,16 @@
         }
 
         // Ensure CTA buttons inside tab panes reliably switch tabs by invoking Bootstrap Tab API
+        // When these bottom-page nav buttons are used we set a flag so the tab 'shown' handler
+        // can scroll the page to the top of the newly shown tab pane.
+        let _scrollPaneOnNextTabShow = null;
         document.querySelectorAll('#tab-assess [data-bs-toggle="tab"], #tab-tally [data-bs-toggle="tab"], #tab-review [data-bs-toggle="tab"]').forEach(el => {
             el.addEventListener('click', (e) => {
                 const target = el.getAttribute('href') || el.dataset.bsTarget;
                 if (!target) return; // nothing to do
                 e.preventDefault();
+                // mark that the next tab show should scroll the pane into view (only when initiated from these CTA buttons)
+                _scrollPaneOnNextTabShow = target;
                 const navTrigger = document.querySelector(`#section-tabs a[href="${target}"]`);
                 if (navTrigger) {
                     // use getOrCreateInstance when available (Bootstrap 5+), fallback to constructor
@@ -2102,6 +2107,19 @@
                             }
                             // on small screens gently scroll the tab content into view
                             if (window.innerWidth < 768) pane.scrollIntoView({behavior: 'smooth', block: 'start'});
+                        }
+
+                        // If navigation was initiated by a bottom-page CTA, scroll the newly shown tab
+                        // into view at the top (account for sticky tab bar).
+                        if (typeof _scrollPaneOnNextTabShow !== 'undefined' && _scrollPaneOnNextTabShow && href === _scrollPaneOnNextTabShow) {
+                            const targetPane = document.querySelector(href);
+                            if (targetPane) {
+                                const sticky = document.querySelector('.nav-tabs.sticky-top');
+                                const offset = (sticky ? sticky.offsetHeight : 0) + 8; // small breathing room
+                                const top = targetPane.getBoundingClientRect().top + window.scrollY - offset;
+                                window.scrollTo({ top, behavior: 'smooth' });
+                            }
+                            _scrollPaneOnNextTabShow = null;
                         }
                     } catch (err) { /* ignore focus/scroll errors */ }
                 });
