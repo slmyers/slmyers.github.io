@@ -14,8 +14,7 @@ picture: assets/images/profile.png
 # and specify source (external or local).
 resume: true
 resume-external: true
-resume-url: https://docs.google.com/document/d/e/2PACX-1vSrYdSYBLGKbLMrQcABaRPacOwYypPbj6hZqsps9a4uU-Gqr7mhRFI49RbUqp0woXqs5vLm8bvdy3aT/pub
-
+resume-url: https://docs.google.com/document/d/e/2PACX-1vSgXPEcueLD7xLY2RsvCiHynsTp5SRibMSPRoeuZkj2RQVtjv0eK1I3yT96X-FnLAzQEU1CbUIRCuBF/pub
 url: https://slmyers.github.io
 # your url: http://USERNAME.github.io
 
@@ -36,7 +35,7 @@ disqus:
 # if you don't have any of social below, comment the line
 # facebook: myfacebook
 
-twitter: stevenm10166217
+# twitter: stevenm10166217
 # google: mygoogle
 # instagram: myinstagram
 # pinterest: mypinterest
