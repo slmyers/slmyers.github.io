@@ -79,10 +79,22 @@
             border-radius: 0.25rem;
             margin-bottom: 1rem;
         }
+
+        /* Subtle Prev/Next controls shown beside each step header */
+        .step-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+        .step-header h2 { margin: 0; font-size: 1.125rem; }
+        .step-header .btn-group .btn { padding: 0.25rem 0.6rem; font-size: 0.85rem; line-height: 1; border-radius: 0.25rem; }
+        .step-header .btn[disabled], .step-header .btn[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
         @media (max-width: 576px) {
             .assess-progress { top: 72px; }
+            .step-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+            .step-header .btn-group { width: 100%; display: flex; gap: 0.5rem; }
+            .step-header .btn { flex: 1; }
         }
         .assess-progress .progress { height: 0.9rem; }
+
+        /* hide the step navigation in print output */
+        @media print { .step-header { display: none !important; } }
 
         /* QUESTION CARD: improved readability, spacing, and unanswered highlighting */
         #assessment-form > .row.align-items-start {
@@ -204,7 +216,13 @@
 
         <div class="tab-content" id="section-tab-content">
         <div id="tab-assess" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-assess-link">
-        <h2>Step 1: Assess</h2>
+        <div class="step-header">
+            <h2 class="mb-0">Step 1: Assess</h2>
+            <div class="btn-group btn-group-sm ms-3" role="group" aria-label="Step navigation">
+                <button type="button" class="btn btn-outline-secondary btn-sm" disabled aria-disabled="true" title="Previous step">‹ Prev</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="tab" data-bs-target="#tab-tally" title="Next step">Next ›</button>
+            </div>
+        </div>
         <div id="assess-progress" class="assess-progress d-flex align-items-center gap-3">
             <div class="flex-grow-1">
                 <div class="progress" role="progressbar" aria-label="Assessment progress">
@@ -1450,10 +1468,28 @@
             </div>
         </form>
 
+        <div class="mt-4 p-3 bg-white border rounded shadow-sm">
+            <div class="d-flex flex-column flex-md-row align-items-center gap-3">
+                <div class="flex-grow-1">
+                    <p class="mb-1 fw-semibold">Finished Step 1? Proceed to the next section to tally your scores.</p>
+                    <small class="text-muted">If you're done answering, click Next — you can always return to change responses.</small>
+                </div>
+                <div class="w-100 w-md-auto">
+                    <a class="btn btn-primary btn-lg w-100" data-bs-toggle="tab" href="#tab-tally" role="tab" aria-controls="tab-tally">Next: Step 2 — Tally →</a>
+                </div>
+            </div>
+        </div>
+
         </div> <!-- end tab-assess -->
 
         <div id="tab-tally" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-tally-link">
-        <h2 class="mt-5">Step 2: Tally</h2>
+        <div class="step-header mt-4">
+            <h2 class="mb-0 mt-0">Step 2: Tally</h2>
+            <div class="btn-group btn-group-sm ms-3" role="group" aria-label="Step navigation">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tab" data-bs-target="#tab-assess" title="Previous step">‹ Prev</button>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="tab" data-bs-target="#tab-review" title="Next step">Next ›</button>
+            </div>
+        </div>
         <table class="table table-bordered table-striped table-hover">
             <thead class="table-dark">
                 <tr>
@@ -1496,10 +1532,24 @@
         <div id="gift-explanations" class="mt-3">Select answers above — scores, primary/secondary, and ordered gift
             explanations will appear automatically.</div>
 
+        <div class="mt-4 p-3 bg-white border rounded shadow-sm">
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a class="btn btn-outline-secondary btn-lg w-100" data-bs-toggle="tab" href="#tab-assess" role="tab" aria-controls="tab-assess">← Back: Assess</a>
+                <a class="btn btn-primary btn-lg w-100" data-bs-toggle="tab" href="#tab-review" role="tab" aria-controls="tab-review">Next: Step 3 — Review/Reflect →</a>
+            </div>
+            <p class="mt-2 mb-0 text-muted small">Not sure what the primary gifts mean? Use the "Gift Explanations" below to learn more.</p>
+        </div>
+
         </div> <!-- end tab-tally -->
 
         <div id="tab-review" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-review-link">
-        <h2 class="mt-5">Step 3: Review/Reflect</h2>
+        <div class="step-header mt-4">
+            <h2 class="mb-0 mt-0">Step 3: Review/Reflect</h2>
+            <div class="btn-group btn-group-sm ms-3" role="group" aria-label="Step navigation">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tab" data-bs-target="#tab-tally" title="Previous step">‹ Prev</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" disabled aria-disabled="true" title="No next step">Next ›</button>
+            </div>
+        </div>
         <div class="mb-4"><label class="form-label fw-bold">What ministries are you now performing (formally or
                 informally) in the Church?</label><textarea id="notes1" name="notes1" class="form-control" rows="5"></textarea></div>
         <div class="mb-4"><label class="form-label fw-bold">Are there any of these ministries that you are not
@@ -1511,6 +1561,14 @@
 
         <div id="print-review" class="print-only mt-4"></div>
         <div id="print-gift-explanations-others" class="print-only mt-4"></div>
+
+        <div class="mt-4 p-3 bg-white border rounded shadow-sm">
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <a class="btn btn-outline-secondary btn-lg w-100" data-bs-toggle="tab" href="#tab-tally" role="tab" aria-controls="tab-tally">← Back: Tally</a>
+                <button id="btn-print-results" class="btn btn-success btn-lg w-100" type="button">Print / Save Results</button>
+            </div>
+            <p class="mt-2 mb-0 text-muted small">Use "Print / Save Results" to create a printable record of your assessment.</p>
+        </div>
 
         </div> <!-- end tab-review -->
         </div> <!-- end tab-content -->
@@ -1919,6 +1977,30 @@
             });
         }
 
+        // print/save button (Review tab)
+        const printBtn = document.getElementById('btn-print-results');
+        if (printBtn) {
+            printBtn.addEventListener('click', () => {
+                try { calculateScores(); } catch (err) {}
+                window.print();
+            });
+        }
+
+        // Ensure CTA buttons inside tab panes reliably switch tabs by invoking Bootstrap Tab API
+        document.querySelectorAll('#tab-assess [data-bs-toggle="tab"], #tab-tally [data-bs-toggle="tab"], #tab-review [data-bs-toggle="tab"]').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const target = el.getAttribute('href') || el.dataset.bsTarget;
+                if (!target) return; // nothing to do
+                e.preventDefault();
+                const navTrigger = document.querySelector(`#section-tabs a[href="${target}"]`);
+                if (navTrigger) {
+                    // use getOrCreateInstance when available (Bootstrap 5+), fallback to constructor
+                    const bsTab = (bootstrap.Tab.getOrCreateInstance) ? bootstrap.Tab.getOrCreateInstance(navTrigger) : new bootstrap.Tab(navTrigger);
+                    bsTab.show();
+                }
+            });
+        });
+
         // update saved stamp when name changes (so user sees whether a key already has saved data)
         const LAST_NAME_KEY = STORAGE_KEY_BASE + '.lastName';
         function saveLastName(name) {
@@ -1981,12 +2063,47 @@
                 const bsTab = new bootstrap.Tab(triggerEl);
                 bsTab.show();
             }
-            // persist and refresh scores when tabs change
+
+            // Intercept tab *show* so we can confirm transitions from Assess -> Tally when incomplete
             document.querySelectorAll(tabSelector).forEach(a => {
+                a.addEventListener('show.bs.tab', e => {
+                    const toHref = e.target.getAttribute('href');
+                    const fromEl = document.querySelector('#section-tabs a.active');
+                    const fromHref = fromEl ? fromEl.getAttribute('href') : null;
+                    if (fromHref === '#tab-assess' && toHref === '#tab-tally') {
+                        try {
+                            const allRadioEls = Array.from(document.querySelectorAll('#assessment-form input[type="radio"]'));
+                            const totalQuestions = new Set(allRadioEls.map(i => i.name)).size || 110;
+                            const answered = new Set(Array.from(document.querySelectorAll('#assessment-form input[type="radio"]:checked')).map(i => i.name)).size;
+                            if (answered < totalQuestions) {
+                                const missing = totalQuestions - answered;
+                                const proceed = confirm(`You have ${missing} unanswered question${missing === 1 ? '' : 's'} of ${totalQuestions} in Step 1 (Assess).\n\nProceed to Step 2 (Tally) anyway?`);
+                                if (!proceed) {
+                                    e.preventDefault();
+                                    return;
+                                }
+                            }
+                        } catch (err) { /* ignore and allow navigation */ }
+                    }
+                });
+
+                // persist and refresh scores when tabs change; also focus the tab heading so users notice the section changed
                 a.addEventListener('shown.bs.tab', e => {
                     const href = e.target.getAttribute('href');
                     try { localStorage.setItem(STORAGE_KEY_BASE + '.lastTab', href); } catch (err) {}
                     try { calculateScores(); } catch (err) {}
+                    try {
+                        const pane = document.querySelector(href);
+                        if (pane) {
+                            const heading = pane.querySelector('h2, h1, h3');
+                            if (heading) {
+                                heading.setAttribute('tabindex', '-1');
+                                heading.focus({preventScroll: true});
+                            }
+                            // on small screens gently scroll the tab content into view
+                            if (window.innerWidth < 768) pane.scrollIntoView({behavior: 'smooth', block: 'start'});
+                        }
+                    } catch (err) { /* ignore focus/scroll errors */ }
                 });
             });
         })();
