@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spiritual Gifts Assessment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        .btn-label {
+            /* allow breaking at slashes/long tokens and wrap anywhere necessary */
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-wrap: break-word;
+            word-break: break-word;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
+
+            text-align: center;
+            line-height: 1.1;
+            padding: 0.7rem 0.5rem;
+        }
+
+        .question-text {
+            line-height: 1.4;
+        }
+
+        .score-max {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .btn-label {
+                font-size: 0.9rem;
+                padding: 0.6rem 0.25rem;
+            }
+        }
+
+        /* On large screens shift horizontal space from the question column to the button column
+           (approximate split: 55% question / 45% buttons for the assessment rows) */
+        @media (min-width: 992px) {
+            /* target only the question rows inside the assessment form so other grid uses aren't affected */
+            #assessment-form .row > .col-lg-8.question-text {
+                flex: 0 0 55%;
+                max-width: 55%;
+            }
+            #assessment-form .row > .col-lg-4 {
+                flex: 0 0 45%;
+                max-width: 45%;
+            }
+
+            /* slightly reduce button label font so long labels fit comfortably */
+            .btn-label {
+                font-size: 0.95rem;
+                padding: 0.6rem 0.5rem;
+                line-height: 1.15;
+            }
+        }
+
+        /* ensure <br> in button labels behaves predictably */
+        .btn-label br { display: block; }
+
+        /* Sticky tabs & progress for Assess */
+        .nav-tabs.sticky-top {
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            z-index: 1030;
+        }
+        .assess-progress {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 56px; /* sits under the sticky tabs */
+            z-index: 1025;
+            background: rgba(255,255,255,0.95);
+            padding: 0.5rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+        @media (max-width: 576px) {
+            .assess-progress { top: 72px; }
+        }
+        .assess-progress .progress { height: 0.9rem; }
+
+        /* QUESTION CARD: improved readability, spacing, and unanswered highlighting */
+        #assessment-form > .row.align-items-start {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            transition: box-shadow .12s ease, transform .05s ease, background-color .12s ease;
+            overflow: hidden;
+        }
+        /* provide breathing room inside the card without changing Bootstrap grid behavior */
+        #assessment-form > .row.align-items-start > .col-lg-8.question-text,
+        #assessment-form > .row.align-items-start > .col-lg-4 {
+            padding-top: 0.85rem;
+            padding-bottom: 0.85rem;
+        }
+
+        /* subtle accent for unanswered rows to aid scanning */
+        #assessment-form > .row.align-items-start.unanswered {
+            background-color: rgba(255,193,7,0.03); /* very light yellow */
+            border-left: 4px solid rgba(255,193,7,0.18);
+        }
+
+        /* larger question text on large screens */
+        @media (min-width: 992px) {
+            #assessment-form > .row.align-items-start > .col-lg-8.question-text {
+                font-size: 1.125rem; /* ~18px */
+                line-height: 1.45;
+            }
+        }
+
+        /* more vertical spacing and larger tap targets on small screens */
+        @media (max-width: 576px) {
+            #assessment-form > .row.align-items-start { margin-bottom: 2rem; }
+            #assessment-form .btn-label { padding: 0.9rem 0.5rem; }
+        }
+
+        .question-focus {
+            box-shadow: 0 0 0 6px rgba(13,110,253,0.08);
+            background-color: rgba(13,110,253,0.02);
+            transition: box-shadow .35s ease, background-color .35s ease;
+        }
+
+        /* Print helpers — control what appears in print */
+        .print-only { display: none; }
+        @media print {
+            /* hide interactive UI and tabbed content — we render a single consolidated print output */
+            #top-controls, .nav-tabs, #section-tab-content, .btn, .form-control.form-control-sm { display: none !important; }
+
+            /* show consolidated print output */
+            #print-output, #print-header { display: block !important; }
+
+            /* hide on-screen combined explanations (we use print-output) */
+            #gift-explanations { display: none !important; }
+
+            /* ensure print-only blocks are visible */
+            .print-only { display: block !important; }
+
+            /* replace review textareas with read-only print output */
+            #tab-review textarea { display: none !important; }
+
+            /* print header */
+            #print-header { display: block !important; font-weight: 600; margin-bottom: .5rem; }
+
+            /* keep cards/tables from breaking awkwardly and remove heavy effects */
+            .card { page-break-inside: avoid; box-shadow: none; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+
+            /* ensure print-output content uses full width */
+            #print-output { width: 100%; }
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container my-5">
+
+        <h1 class="text-center mb-4">Spiritual Gifts Assessment</h1>
+        <div class="alert alert-info">
+            <p>Based primarily on the Wagner “Modified Houts Questionnaire”, this spiritual gifts discovery instrument was originally suggested by Dr. Richard F. Houts, a professor at the North American Baptist Theological Seminary, in 1976 (it was further informed by C. Peter Wagner and Jon Thompson). The three or four gifts you score highest in are a starting point for prayer and experimentation. Be open to members of the body of Christ helping you confirm what gifts you have.</p>
+
+            <h5 class="mt-3 mb-1">STEP 1: Assess</h5>
+            <p>Go through the list of statements in the questionnaire; for each, mark to what extent the statement is true of your life: Fully/Frequently, Somewhat/Sometimes, Not Really/Not Often, or Not At All/Not Ever.</p>
+
+            <h5 class="mt-2 mb-1">STEP 2: Tally</h5>
+            <p>Add up the questionnaire totals by means of the chart provided.</p>
+
+            <h5 class="mt-2 mb-1">STEP 3: Review/Reflect</h5>
+            <p>Spend time reading the passages where your highest scoring gifts are seen in the Bible. Complete the Reflection questions to gain a tentative evaluation of your gifts and explore the implications for your ministry.</p>
+        </div>
+
+        <!-- controls moved to top -->
+        <div id="top-controls" class="d-flex justify-content-between align-items-center mb-3">
+            <div class="text-muted small">Responses are saved automatically to your browser.</div>
+            <div class="d-flex align-items-center gap-2">
+                <input id="save-name" class="form-control form-control-sm" placeholder="Name (key)" style="width:180px" title="Enter a name to save/load results" />
+                <button id="reload-saved" class="btn btn-sm btn-outline-secondary">Reload</button>
+                <button id="reset-scores" class="btn btn-sm btn-outline-warning">Reset scores</button>
+                <button id="clear-saved" class="btn btn-sm btn-outline-danger">Clear saved answers</button>
+                <span id="saved-stamp" class="ms-3 text-muted small">No saved data</span>
+            </div>
+        </div>
+        <div id="print-header" class="print-only text-muted small mb-2"></div>
+        <div id="print-output" class="print-only"></div>
+
+        <!-- Section tabs -->
+        <ul class="nav nav-tabs mb-3 sticky-top" id="section-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="tab-assess-link" data-bs-toggle="tab" href="#tab-assess" role="tab" aria-controls="tab-assess" aria-selected="true">Assess</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tab-tally-link" data-bs-toggle="tab" href="#tab-tally" role="tab" aria-controls="tab-tally" aria-selected="false">Tally</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="tab-review-link" data-bs-toggle="tab" href="#tab-review" role="tab" aria-controls="tab-review" aria-selected="false">Review/Reflect</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="section-tab-content">
+        <div id="tab-assess" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-assess-link">
+        <h2>Step 1: Assess</h2>
+        <div id="assess-progress" class="assess-progress d-flex align-items-center gap-3">
+            <div class="flex-grow-1">
+                <div class="progress" role="progressbar" aria-label="Assessment progress">
+                    <div id="assess-progress-bar" class="progress-bar bg-success" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <div class="text-muted small ms-3" id="assess-progress-text">0 / 110 answered</div>
+        </div>
+        <p class="lead">Mark to what extent each statement is true of your life:</p>
+
+        <form id="assessment-form">
+            <!-- Header row for options (responsive) -->
+            <div class="row g-2 mb-4 text-center fw-bold">
+                <div class="col-6 col-md-3"><span class="d-none d-md-inline">Fully/Frequently</span><span
+                        class="d-md-none">Fully (3)</span></div>
+                <div class="col-6 col-md-3"><span class="d-none d-md-inline">Somewhat/Sometimes</span><span
+                        class="d-md-none">Somewhat (2)</span></div>
+                <div class="col-6 col-md-3"><span class="d-none d-md-inline">Not Really/Not Often</span><span
+                        class="d-md-none">Not Really (1)</span></div>
+                <div class="col-6 col-md-3"><span class="d-none d-md-inline">Not at All/Not Ever</span><span
+                        class="d-md-none">Not at All (0)</span></div>
+            </div>
+
+            <!-- All 110 questions follow the exact same pattern (texts taken verbatim from PDF). Example shown for 1–5; in production file all 110 are present. -->
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>1.</strong> I have a desire to speak direct messages from
+                    God that edify, exhort, or comfort others.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q1" id="q1-3"
+                                value="3"><label class="btn btn-outline-success w-100 btn-label"
+                                for="q1-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q1" id="q1-2"
+                                value="2"><label class="btn btn-outline-primary w-100 btn-label"
+                                for="q1-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q1" id="q1-1"
+                                value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q1-1">Not
+                                Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q1" id="q1-0"
+                                value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q1-0">Not at
+                                All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>2.</strong> I have enjoyed relating to people over a long period of time, sharing personally in their successes and failures.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q2" id="q2-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q2-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q2" id="q2-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q2-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q2" id="q2-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q2-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q2" id="q2-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q2-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>3.</strong> People have told me that I have helped them learn some biblical truth in a meaningful way.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q3" id="q3-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q3-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q3" id="q3-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q3-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q3" id="q3-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q3-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q3" id="q3-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q3-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>4.</strong> I have applied spiritual truth effectively to situations in my own life.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q4" id="q4-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q4-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q4" id="q4-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q4-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q4" id="q4-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q4-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q4" id="q4-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q4-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>5.</strong> Others have told me that I have helped them distinguish key and important facts of scripture.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q5" id="q5-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q5-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q5" id="q5-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q5-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q5" id="q5-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q5-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q5" id="q5-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q5-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>6.</strong> I have verbally encouraged the wavering, the troubled or the discouraged.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q6" id="q6-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q6-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q6" id="q6-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q6-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q6" id="q6-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q6-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q6" id="q6-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q6-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>7.</strong> Others in the church have noted that I was able to see through phoniness before it was evident to other people.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q7" id="q7-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q7-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q7" id="q7-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q7-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q7" id="q7-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q7-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q7" id="q7-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q7-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>8.</strong> I find I manage money well in order to give liberally to the Lord's work.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q8" id="q8-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q8-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q8" id="q8-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q8-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q8" id="q8-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q8-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q8" id="q8-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q8-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>9.</strong> I have assisted Christian leaders to relieve them for their essential job.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q9" id="q9-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q9-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q9" id="q9-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q9-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q9" id="q9-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q9-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q9" id="q9-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q9-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>10.</strong> I have a desire to work with those who have physical or mental problems, to alleviate their suffering.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q10" id="q10-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q10-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q10" id="q10-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q10-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q10" id="q10-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q10-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q10" id="q10-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q10-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>11.</strong> I feel comfortable relating to people of other cultural backgrounds, and they seem to accept me.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q11" id="q11-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q11-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q11" id="q11-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q11-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q11" id="q11-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q11-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q11" id="q11-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q11-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>12.</strong> I have led others to a commitment to follow Christ in faith.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q12" id="q12-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q12-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q12" id="q12-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q12-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q12" id="q12-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q12-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q12" id="q12-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q12-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>13.</strong> My home is always open to people passing through who need a place to stay.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q13" id="q13-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q13-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q13" id="q13-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q13-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q13" id="q13-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q13-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q13" id="q13-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q13-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>14.</strong> When in a group, I am often the one others often look to for vision and direction.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q14" id="q14-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q14-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q14" id="q14-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q14-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q14" id="q14-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q14-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q14" id="q14-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q14-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>15.</strong> When I speak people seem to listen and agree.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q15" id="q15-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q15-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q15" id="q15-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q15-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q15" id="q15-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q15-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q15" id="q15-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q15-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>16.</strong> When a group I am in is lacking organization, I tend to step in and fill the gap.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q16" id="q16-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q16-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q16" id="q16-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q16-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q16" id="q16-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q16-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q16" id="q16-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q16-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>17.</strong> Others can point to specific instances where my prayers have resulted in visible miracles.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q17" id="q17-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q17-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q17" id="q17-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q17-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q17" id="q17-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q17-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q17" id="q17-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q17-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>18.</strong> In the name of the Lord, I have been used in curing diseases instantaneously.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q18" id="q18-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q18-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q18" id="q18-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q18-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q18" id="q18-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q18-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q18" id="q18-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q18-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>19.</strong> I have spoken in tongues.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q19" id="q19-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q19-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q19" id="q19-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q19-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q19" id="q19-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q19-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q19" id="q19-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q19-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>20.</strong> Sometimes when a person speaks in tongues, I get an idea about what God is saying.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q20" id="q20-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q20-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q20" id="q20-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q20-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q20" id="q20-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q20-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q20" id="q20-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q20-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>21.</strong> I spend at least an hour a day in prayer.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q21" id="q21-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q21-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q21" id="q21-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q21-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q21" id="q21-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q21-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q21" id="q21-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q21-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>22.</strong> I enjoy being called upon to do special jobs around the church.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q22" id="q22-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q22-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q22" id="q22-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q22-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q22" id="q22-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q22-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q22" id="q22-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q22-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>23.</strong> Through God, I have revealed specific things which will happen in the future.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q23" id="q23-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q23-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q23" id="q23-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q23-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q23" id="q23-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q23-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q23" id="q23-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q23-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>24.</strong> I have enjoyed assuming responsibility for the spiritual well-being of a particular group of Christians.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q24" id="q24-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q24-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q24" id="q24-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q24-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q24" id="q24-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q24-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q24" id="q24-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q24-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>25.</strong> I feel I can explain the New Testament teaching about the health and ministry of the body of Christ in a relevant way.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q25" id="q25-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q25-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q25" id="q25-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q25-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q25" id="q25-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q25-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q25" id="q25-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q25-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>26.</strong> I can intuitively arrive at solutions to fairly complicated problems.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q26" id="q26-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q26-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q26" id="q26-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q26-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q26" id="q26-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q26-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q26" id="q26-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q26-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>27.</strong> I have had insights into spiritual truth which others have said helped bring them closer to God.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q27" id="q27-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q27-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q27" id="q27-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q27-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q27" id="q27-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q27-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q27" id="q27-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q27-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>28.</strong> I can effectively motivate people to get involved in ministry when it's needed.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q28" id="q28-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q28-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q28" id="q28-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q28-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q28" id="q28-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q28-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q28" id="q28-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q28-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>29.</strong> I am keenly aware of the Spirit of God empowering certain people from time to time.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q29" id="q29-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q29-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q29" id="q29-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q29-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q29" id="q29-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q29-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q29" id="q29-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q29-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>30.</strong> My giving records show that I give considerably more than 10 percent of my income to the Lord's work.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q30" id="q30-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q30-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q30" id="q30-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q30-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q30" id="q30-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q30-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q30" id="q30-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q30-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>31.</strong> Other people have told me that I have helped them become more effective in their ministries.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q31" id="q31-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q31-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q31" id="q31-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q31-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q31" id="q31-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q31-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q31" id="q31-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q31-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>32.</strong> I have cared for others when they have had material or physical needs.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q32" id="q32-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q32-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q32" id="q32-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q32-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q32" id="q32-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q32-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q32" id="q32-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q32-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>33.</strong> I feel I could learn another language well in order to minister to those in a different culture.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q33" id="q33-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q33-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q33" id="q33-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q33-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q33" id="q33-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q33-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q33" id="q33-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q33-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>34.</strong> I have shared joyfully how Christ has brought me to Himself in a way that is meaningful to non-believers.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q34" id="q34-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q34-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q34" id="q34-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q34-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q34" id="q34-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q34-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q34" id="q34-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q34-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>35.</strong> I enjoy taking charge of church suppers or social gatherings.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q35" id="q35-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q35-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q35" id="q35-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q35-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q35" id="q35-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q35-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q35" id="q35-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q35-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>36.</strong> I have believed God for the impossible and have seen it happen in a tangible way.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q36" id="q36-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q36-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q36" id="q36-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q36-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q36" id="q36-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q36-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q36" id="q36-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q36-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>37.</strong> Other Christians have followed my leadership because they believed in me.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q37" id="q37-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q37-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q37" id="q37-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q37-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q37" id="q37-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q37-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q37" id="q37-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q37-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>38.</strong> I enjoy the details of organizing ideas, people, resources and time for more effective ministry.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q38" id="q38-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q38-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q38" id="q38-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q38-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q38" id="q38-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q38-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q38" id="q38-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q38-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>39.</strong> God has used me personally to perform supernatural signs and wonders.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q39" id="q39-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q39-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q39" id="q39-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q39-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q39" id="q39-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q39-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q39" id="q39-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q39-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>40.</strong> I enjoy praying for sick people because I know that they can be healed as a result.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q40" id="q40-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q40-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q40" id="q40-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q40-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q40" id="q40-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q40-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q40" id="q40-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q40-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>41.</strong> I have spoken an immediate message of God to His people in a language that I have never learned.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q41" id="q41-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q41-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q41" id="q41-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q41-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q41" id="q41-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q41-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q41" id="q41-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q41-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>42.</strong> I have interpreted tongues with the result that the body of Christ was edified, exhorted, or comforted.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q42" id="q42-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q42-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q42" id="q42-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q42-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q42" id="q42-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q42-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q42" id="q42-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q42-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>43.</strong> When I hear a prayer request, I pray for that need for several days at least.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q43" id="q43-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q43-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q43" id="q43-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q43-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q43" id="q43-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q43-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q43" id="q43-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q43-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>44.</strong> I don't have specialized skills, but I do what needs to be done around the church.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q44" id="q44-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q44-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q44" id="q44-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q44-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q44" id="q44-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q44-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q44" id="q44-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q44-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>45.</strong> People have told me that I have communicated timely and urgent messages which have come directly from the Lord.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q45" id="q45-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q45-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q45" id="q45-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q45-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q45" id="q45-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q45-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q45" id="q45-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q45-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>46.</strong> I feel unafraid of giving spiritual guidance and direction to a group of Christians.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q46" id="q46-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q46-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q46" id="q46-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q46-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q46" id="q46-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q46-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q46" id="q46-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q46-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>47.</strong> I can devote considerable time to learning new biblical truths in order to communicate them to others.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q47" id="q47-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q47-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q47" id="q47-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q47-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q47" id="q47-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q47-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q47" id="q47-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q47-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>48.</strong> When a person has a problem I can frequently guide them to the best Biblical solution.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q48" id="q48-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q48-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q48" id="q48-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q48-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q48" id="q48-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q48-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q48" id="q48-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q48-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>49.</strong> Through study or experience, I have discerned major strategies or techniques God seems to use in furthering His kingdom.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q49" id="q49-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q49-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q49" id="q49-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q49-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q49" id="q49-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q49-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q49" id="q49-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q49-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>50.</strong> People have come to me in their afflictions or suffering and have told me that they have been helped, relieved and healed.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q50" id="q50-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q50-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q50" id="q50-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q50-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q50" id="q50-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q50-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q50" id="q50-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q50-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>51.</strong> I can tell with a fairly high degree of assurance when a person is afflicted by an evil spirit.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q51" id="q51-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q51-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q51" id="q51-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q51-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q51" id="q51-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q51-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q51" id="q51-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q51-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>52.</strong> When I am moved by an appeal to give to God's work, I usually find the money that I need to do it.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q52" id="q52-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q52-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q52" id="q52-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q52-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q52" id="q52-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q52-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q52" id="q52-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q52-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>53.</strong> I have enjoyed doing routine tasks that led to more effective ministry by others.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q53" id="q53-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q53-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q53" id="q53-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q53-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q53" id="q53-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q53-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q53" id="q53-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q53-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>54.</strong> I enjoy doing visitation in hospitals and/or retirement homes, and feel I do well in such a ministry.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q54" id="q54-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q54-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q54" id="q54-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q54-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q54" id="q54-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q54-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q54" id="q54-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q54-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>55.</strong> People of a different race or culture are very comfortable with me, and we have related well.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q55" id="q55-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q55-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q55" id="q55-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q55-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q55" id="q55-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q55-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q55" id="q55-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q55-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>56.</strong> Non-Christians have noted that they feel comfortable when they are around me, and that I have a positive effect on them toward developing a faith in Christ.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q56" id="q56-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q56-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q56" id="q56-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q56-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q56" id="q56-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q56-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q56" id="q56-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q56-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>57.</strong> When people come to our home, they indicate that they "feel at home" with us.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q57" id="q57-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q57-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q57" id="q57-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q57-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q57" id="q57-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q57-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q57" id="q57-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q57-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>58.</strong> Other people have told me that I had faith to accomplish what seemed impossible to them.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q58" id="q58-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q58-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q58" id="q58-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q58-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q58" id="q58-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q58-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q58" id="q58-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q58-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>59.</strong> When I set goals, others seem to accept them readily.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q59" id="q59-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q59-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q59" id="q59-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q59-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q59" id="q59-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q59-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q59" id="q59-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q59-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>60.</strong> I have been able to make effective and efficient plans for accomplishing the goals of a group.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q60" id="q60-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q60-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q60" id="q60-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q60-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q60" id="q60-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q60-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q60" id="q60-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q60-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>61.</strong> God regularly seems to do impossible things through my life.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q61" id="q61-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q61-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q61" id="q61-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q61-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q61" id="q61-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q61-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q61" id="q61-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q61-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>62.</strong> Others have told me that God healed them of an emotional problem when I ministered to them.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q62" id="q62-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q62-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q62" id="q62-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q62-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q62" id="q62-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q62-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q62" id="q62-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q62-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>63.</strong> I can speak to God in a language I have never learned.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q63" id="q63-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q63-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q63" id="q63-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q63-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q63" id="q63-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q63-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q63" id="q63-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q63-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>64.</strong> I have prayed that I may interpret if someone begins speaking in tongues.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q64" id="q64-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q64-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q64" id="q64-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q64-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q64" id="q64-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q64-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q64" id="q64-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q64-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>65.</strong> Intercessory prayer is one of my favourite ways of spending time.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q65" id="q65-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q65-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q65" id="q65-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q65-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q65" id="q65-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q65-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q65" id="q65-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q65-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>66.</strong> Others have mentioned that I seem to enjoy routine tasks and do well at them.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q66" id="q66-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q66-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q66" id="q66-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q66-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q66" id="q66-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q66-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q66" id="q66-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q66-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>67.</strong> I sometimes feel that I know exactly what God wants me to do in ministry at a specific point in time.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q67" id="q67-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q67-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q67" id="q67-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q67-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q67" id="q67-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q67-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q67" id="q67-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q67-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>68.</strong> I have helped fellow believers by guiding them to relevant portions of the Bible and praying with them.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q68" id="q68-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q68-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q68" id="q68-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q68-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q68" id="q68-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q68-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q68" id="q68-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q68-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>69.</strong> I feel I can communicate Biblical truths to others and see resulting changes in knowledge, attitudes, values, or conduct.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q69" id="q69-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q69-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q69" id="q69-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q69-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q69" id="q69-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q69-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q69" id="q69-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q69-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>70.</strong> Some people indicate that I have perceived and applied Biblical truth to the specified needs of fellow believers.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q70" id="q70-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q70-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q70" id="q70-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q70-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q70" id="q70-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q70-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q70" id="q70-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q70-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>71.</strong> I study and read quite a bit in order to learn new Biblical truths.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q71" id="q71-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q71-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q71" id="q71-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q71-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q71" id="q71-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q71-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q71" id="q71-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q71-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>72.</strong> I have a desire to effectively counsel the perplexed, the guilty or the addicted.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q72" id="q72-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q72-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q72" id="q72-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q72-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q72" id="q72-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q72-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q72" id="q72-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q72-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>73.</strong> I can easily recognize whether a teaching is aligned with God, or not.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q73" id="q73-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q73-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q73" id="q73-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q73-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q73" id="q73-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q73-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q73" id="q73-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q73-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>74.</strong> I am so confident that God will meet my needs that I give to Him sacrificially and consistently.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q74" id="q74-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q74-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q74" id="q74-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q74-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q74" id="q74-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q74-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q74" id="q74-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q74-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>75.</strong> When I serve the Lord, I really don't care who gets the credit.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q75" id="q75-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q75-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q75" id="q75-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q75-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q75" id="q75-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q75-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q75" id="q75-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q75-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>76.</strong> People call on me to help those who are less fortunate.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q76" id="q76-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q76-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q76" id="q76-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q76-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q76" id="q76-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q76-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q76" id="q76-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q76-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>77.</strong> I would be willing to leave comfortable surroundings if it would enable me to share Christ with more people.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q77" id="q77-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q77-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q77" id="q77-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q77-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q77" id="q77-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q77-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q77" id="q77-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q77-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>78.</strong> I get frustrated when others don't seem to share their faith with unbelievers as much as I do.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q78" id="q78-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q78-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q78" id="q78-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q78-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q78" id="q78-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q78-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q78" id="q78-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q78-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>79.</strong> Others have mentioned to me that I am a very hospitable person.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q79" id="q79-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q79-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q79" id="q79-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q79-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q79" id="q79-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q79-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q79" id="q79-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q79-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>80.</strong> There have been times when I have felt sure I knew God's specific will for the future growth of His work, even when others did not feel so sure.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q80" id="q80-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q80-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q80" id="q80-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q80-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q80" id="q80-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q80-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q80" id="q80-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q80-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>81.</strong> When I join a group, others seem to back off and expect me to take the leadership.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q81" id="q81-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q81-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q81" id="q81-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q81-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q81" id="q81-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q81-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q81" id="q81-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q81-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>82.</strong> I am able to give directions to others without using persuasion to get them to accomplish a task.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q82" id="q82-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q82-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q82" id="q82-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q82-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q82" id="q82-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q82-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q82" id="q82-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q82-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>83.</strong> People have told me that I was God's instrument which brought supernatural changes in lives or circumstances.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q83" id="q83-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q83-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q83" id="q83-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q83-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q83" id="q83-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q83-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q83" id="q83-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q83-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>84.</strong> I have prayed for others and physical healing has actually occurred.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q84" id="q84-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q84-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q84" id="q84-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q84-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q84" id="q84-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q84-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q84" id="q84-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q84-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>85.</strong> When I give a public message in tongues, I expect it to be interpreted.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q85" id="q85-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q85-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q85" id="q85-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q85-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q85" id="q85-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q85-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q85" id="q85-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q85-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>86.</strong> I have interpreted tongues in a way that seemed to bless others.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q86" id="q86-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q86-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q86" id="q86-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q86-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q86" id="q86-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q86-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q86" id="q86-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q86-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>87.</strong> Others have told me that my prayers for them have been answered in tangible ways.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q87" id="q87-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q87-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q87" id="q87-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q87-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q87" id="q87-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q87-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q87" id="q87-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q87-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>88.</strong> I prefer being active and doing something rather than sitting around talking or reading or listening to a speaker.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q88" id="q88-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q88-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q88" id="q88-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q88-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q88" id="q88-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q88-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q88" id="q88-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q88-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>89.</strong> I sometimes feel that I know exactly what God wants me to do in ministry at a specific point in time.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q89" id="q89-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q89-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q89" id="q89-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q89-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q89" id="q89-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q89-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q89" id="q89-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q89-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>90.</strong> People have told me that I have helped them to be restored to the Christian community.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q90" id="q90-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q90-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q90" id="q90-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q90-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q90" id="q90-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q90-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q90" id="q90-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q90-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>91.</strong> Studying the Bible and sharing my insights with others is very satisfying for me.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q91" id="q91-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q91-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q91" id="q91-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q91-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q91" id="q91-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q91-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q91" id="q91-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q91-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>92.</strong> I have felt the presence of God and high confidence when important decisions needed to be made.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q92" id="q92-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q92-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q92" id="q92-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q92-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q92" id="q92-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q92-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q92" id="q92-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q92-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>93.</strong> I have the ability to discover new truths for myself through reading or observing situations firsthand.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q93" id="q93-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q93-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q93" id="q93-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q93-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q93" id="q93-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q93-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q93" id="q93-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q93-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>94.</strong> I have urged others to seek a Biblical solution to their affliction or suffering.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q94" id="q94-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q94-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q94" id="q94-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q94-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q94" id="q94-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q94-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q94" id="q94-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q94-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>95.</strong> I can tell whether a person speaking in tongues is genuine.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q95" id="q95-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q95-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q95" id="q95-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q95-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q95" id="q95-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q95-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q95" id="q95-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q95-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>96.</strong> I have been willing to maintain a lower standard of living in order to benefit God's work.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q96" id="q96-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q96-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q96" id="q96-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q96-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q96" id="q96-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q96-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q96" id="q96-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q96-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>97.</strong> When I serve the Lord, I really don't care who gets the credit.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q97" id="q97-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q97-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q97" id="q97-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q97-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q97" id="q97-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q97-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q97" id="q97-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q97-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>98.</strong> I would enjoy spending time with a lonely, shut-in person or someone in prison.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q98" id="q98-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q98-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q98" id="q98-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q98-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q98" id="q98-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q98-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q98" id="q98-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q98-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>99.</strong> More than most, I have had a strong desire to see people of other countries come to the Lord.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q99" id="q99-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q99-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q99" id="q99-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q99-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q99" id="q99-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q99-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q99" id="q99-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q99-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>100.</strong> I am attracted to non-believers because of my desire to introduce them to Christ.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q100" id="q100-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q100-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q100" id="q100-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q100-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q100" id="q100-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q100-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q100" id="q100-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q100-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>101.</strong> I have desired to make my home available to those in the Lord's service whenever needed.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q101" id="q101-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q101-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q101" id="q101-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q101-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q101" id="q101-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q101-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q101" id="q101-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q101-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>102.</strong> Others have told me that I am a person of unusual vision and I agree.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q102" id="q102-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q102-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q102" id="q102-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q102-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q102" id="q102-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q102-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q102" id="q102-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q102-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>103.</strong> When I am in charge, things seem to run smoothly.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q103" id="q103-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q103-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q103" id="q103-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q103-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q103" id="q103-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q103-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q103" id="q103-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q103-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>104.</strong> I have enjoyed bearing the responsibility for the success of a particular task within my church.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q104" id="q104-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q104-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q104" id="q104-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q104-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q104" id="q104-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q104-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q104" id="q104-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q104-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>105.</strong> In the name of the Lord, I have been able to see miracles.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q105" id="q105-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q105-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q105" id="q105-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q105-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q105" id="q105-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q105-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q105" id="q105-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q105-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>106.</strong> When I pray for the sick, there are physical signs .</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q106" id="q106-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q106-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q106" id="q106-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q106-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q106" id="q106-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q106-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q106" id="q106-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q106-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>107.</strong> When I speak in tongues, I believe it is edifying to the Lord's body.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q107" id="q107-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q107-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q107" id="q107-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q107-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q107" id="q107-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q107-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q107" id="q107-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q107-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>108.</strong> I have interpreted tongues in such a way that the message appeared to be directly from God.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q108" id="q108-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q108-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q108" id="q108-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q108-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q108" id="q108-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q108-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q108" id="q108-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q108-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>109.</strong> When I pray, God frequently speaks to me, and I recognize His voice.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q109" id="q109-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q109-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q109" id="q109-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q109-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q109" id="q109-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q109-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q109" id="q109-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q109-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-4 align-items-start">
+                <div class="col-lg-8 question-text"><strong>110.</strong> I respond cheerfully when asked to do a job, even if it seems menial.</div>
+                <div class="col-lg-4">
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q110" id="q110-3" value="3"><label class="btn btn-outline-success w-100 btn-label" for="q110-3">Fully/Frequently<br>(3)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q110" id="q110-2" value="2"><label class="btn btn-outline-primary w-100 btn-label" for="q110-2">Somewhat/Sometimes<br>(2)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q110" id="q110-1" value="1"><label class="btn btn-outline-warning w-100 btn-label" for="q110-1">Not Really/Not Often<br>(1)</label></div>
+                        <div class="col-6 col-md-3"><input type="radio" class="btn-check" name="q110" id="q110-0" value="0"><label class="btn btn-outline-danger w-100 btn-label" for="q110-0">Not at All/Not Ever<br>(0)</label></div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        </div> <!-- end tab-assess -->
+
+        <div id="tab-tally" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-tally-link">
+        <h2 class="mt-5">Step 2: Tally</h2>
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Gift</th>
+                    <th id="tally-total-header" aria-sort="none">Total (max 15)</th>
+                </tr>
+            </thead>
+            <tbody id="tally-body">
+                <!-- 22 rows generated by JS (Prophecy → Service) -->
+            </tbody>
+        </table>
+
+        <h2 class="mt-5">Primary and Secondary Gifts</h2>
+        <table class="table table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th>Primary Gifts (top 3)</th>
+                    <th>Secondary Gifts (next 3)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="primary1"></td>
+                    <td id="secondary1"></td>
+                </tr>
+                <tr>
+                    <td id="primary2"></td>
+                    <td id="secondary2"></td>
+                </tr>
+                <tr>
+                    <td id="primary3"></td>
+                    <td id="secondary3"></td>
+                </tr>
+            </tbody>
+        </table>
+
+            <div id="print-gift-explanations-primary" class="print-only mt-3"></div>
+
+        <h2 class="mt-5">Gift Explanations / Characteristics</h2>
+        <div id="gift-explanations" class="mt-3">Select answers above — scores, primary/secondary, and ordered gift
+            explanations will appear automatically.</div>
+
+        </div> <!-- end tab-tally -->
+
+        <div id="tab-review" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-review-link">
+        <h2 class="mt-5">Step 3: Review/Reflect</h2>
+        <div class="mb-4"><label class="form-label fw-bold">What ministries are you now performing (formally or
+                informally) in the Church?</label><textarea id="notes1" name="notes1" class="form-control" rows="5"></textarea></div>
+        <div class="mb-4"><label class="form-label fw-bold">Are there any of these ministries that you are not
+                especially gifted for? God may be calling you to consider changes.</label><textarea id="notes2" name="notes2" class="form-control"
+                rows="5"></textarea></div>
+        <div class="mb-4"><label class="form-label fw-bold">In the light of your gift cluster and vocational status,
+                what are some of the ministry models or roles suitable for you? What specific roles in the body of
+                Christ has God possibly gifted you for?</label><textarea id="notes3" name="notes3" class="form-control" rows="5"></textarea></div>
+
+        <div id="print-review" class="print-only mt-4"></div>
+        <div id="print-gift-explanations-others" class="print-only mt-4"></div>
+
+        </div> <!-- end tab-review -->
+        </div> <!-- end tab-content -->
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script>
+        const giftsData = [
+            { name: "Prophecy", questions: [1, 23, 45, 67, 89], desc: "The gift of prophecy is the special ability that God gives to certain members of the body of Christ to receive and communicate an immediate message from God to His people through a divinely-anointed utterance.", scriptures: "1 Cor. 12:10, 28<br>Eph. 4:11-14; Romans 12:6<br>Luke 7:26<br>Acts 15:32; 21:9-11" },
+            { name: "Pastor", questions: [2, 24, 46, 68, 90], desc: "The gift of the pastor is the special ability that God gives to certain members of the body of Christ to assume long-term personal responsibility for the spiritual welfare of a group of believers.", scriptures: "Eph. 4:11-14<br>1 Timothy 3:1-7<br>John 10:1-18<br>1 Peter 5:1–3" },
+            { name: "Teaching", questions: [3, 25, 47, 69, 91], desc: "The gift of teaching is the special ability that God gives to certain members of the body of Christ to communicate information relevant to the health and ministry of the body and its members in such a way that others will learn.", scriptures: "1 Cor. 12:28<br>Eph. 4:11-14<br>Romans 12:7<br>Acts 18:24-28; 20:20-21" },
+            { name: "Wisdom", questions: [4, 26, 48, 70, 92], desc: "The gift of wisdom is the special ability that God gives to certain members of the body of Christ to know the mind of the Holy Spirit in such a way as to receive insight into how given knowledge may best be applied to specific needs arising in the body of Christ. Some groups refer to a “Word of Wisdom”…", scriptures: "1 Cor. 2:1-13; 12:8<br>Acts 6:3,10<br>James 1:5-6<br>2 Peter 3:15-16" },
+            { name: "Knowledge", questions: [5, 27, 49, 71, 93], desc: "The gift of knowledge is the special ability that God gives to certain members of the body of Christ to discover, accumulate, analyze, and clarify information and ideas which are pertinent to the well being of the body. Some groups refer to a “Word of Knowledge”…", scriptures: "1 Cor. 2:14; 12:8<br>Acts 5:1-11<br>Col. 2:2-3<br>2 Cor. 11:6" },
+            { name: "Exhortation", questions: [6, 28, 50, 72, 94], desc: "The gift of exhortation is the special ability that God gives to certain members of the body of Christ to minister words of comfort, consolation, encouragement, and counsel…", scriptures: "Romans 12:8<br>1 Timothy 4:13<br>Hebrews 10:25<br>Acts 14:22" },
+            { name: "Discernment", questions: [7, 29, 51, 73, 95], desc: "The gift of discerning of spirits is the special ability that God gives to certain members of the body of Christ to know with assurance whether certain behaviour purported to be of God is in reality divine, human, or satanic.", scriptures: "1 Cor. 12:10<br>Acts 5:1-11; 16:16-18<br>1 John 4:1-6<br>Matt. 16:21-23" },
+            { name: "Giving", questions: [8, 30, 52, 74, 96], desc: "The gift of giving is the special ability that God gives to certain members of the body of Christ to contribute their material resources to the work of the Lord with liberality and cheerfulness.", scriptures: "Romans 12:8<br>2 Cor. 8:1-7; 9:2-8<br>Mark 12:41-44" },
+            { name: "Helps", questions: [9, 31, 53, 75, 97], desc: "The gift of helps is the special ability that God gives to certain members of the body of Christ to invest the talents they have in the life and ministry of other members…", scriptures: "1 Cor. 12:28<br>Romans 16:1-2<br>Acts 9:36<br>Luke 8:2-3<br>Mark 15:40-41" },
+            { name: "Mercy", questions: [10, 32, 54, 76, 98], desc: "The gift of mercy is the special ability that God gives to certain members of the body of Christ to feel genuine empathy and compassion for individuals…", scriptures: "Romans 12:8<br>Mark 9:41<br>Acts 16:33-34<br>Luke 10:33-35<br>Matt. 20:29-34; 25:34-40" },
+            { name: "Missionary", questions: [11, 33, 55, 77, 99], desc: "The gift of missionary is the special ability that God gives to certain members of the body of Christ to minister whatever other spiritual gifts they have in a second culture.", scriptures: "1 Cor.9:19-23<br>Acts 8:4; 13:2-3; 22:21<br>Romans 10:15" },
+            { name: "Evangelist", questions: [12, 34, 56, 78, 100], desc: "The gift of evangelist is the special ability that God gives to certain members of the body of Christ to share the gospel with unbelievers…", scriptures: "Eph. 4:11-14<br>2 Timothy 4:5<br>Acts 8:5-6; 8:26-40; 14:21; 21:8" },
+            { name: "Hospitality", questions: [13, 35, 57, 79, 101], desc: "The gift of hospitality is the special ability that God gives to certain members of the body of Christ to provide an open house and a warm welcome to those in need of food and lodging.", scriptures: "1 Peter 4:9<br>Romans 12:9-13; 16:23<br>Acts 16:14-15<br>Hebrews 13:1-2" },
+            { name: "Faith", questions: [14, 36, 58, 80, 102], desc: "The gift of faith is the special ability that God gives to certain members of the body of Christ to discern with extraordinary confidence the will and purposes of God for His work.", scriptures: "1 Cor. 12:9<br>Acts 11:22-24; 27:21-25<br>Hebrews 11<br>Romans 4:18-21" },
+            { name: "Leadership", questions: [15, 37, 59, 81, 103], desc: "The gift of leadership is the special ability that God gives to certain members of the body of Christ to set goals in accordance with God’s purpose…", scriptures: "1 Timothy 5:17<br>Acts 7:10; 15:7-11<br>Romans 12:8<br>Hebrews 13:17<br>Luke 9:51" },
+            { name: "Administration", questions: [16, 38, 60, 82, 104], desc: "The gift of administration is the special ability that God gives to certain members of the body of Christ to understand clearly the immediate and long range goals…", scriptures: "1 Cor. 12:28<br>Acts 6:1-7; 27:11<br>Luke 14:28-30<br>Titus 1:5" },
+            { name: "Miracles", questions: [17, 39, 61, 83, 105], desc: "The gift of miracles is the special ability that God gives to certain members of the body of Christ to serve as human intermediaries through whom it pleases God to perform such powerful acts…", scriptures: "1 Cor. 12:10, 28<br>Acts 9:36-42; 19:11-20; 20:7-12<br>Romans 15:18-19<br>2 Cor. 12:12" },
+            { name: "Healing", questions: [18, 40, 62, 84, 106], desc: "The gift of healing is the special ability that God gives to certain members of the body of Christ to serve as human intermediaries through whom it pleases God to cure illness and restore health apart from the use of natural means.", scriptures: "1 Cor. 12:9, 28<br>Acts 3:1-10; 5:12–16; 9:32-35; 28:7-10" },
+            { name: "Tongues", questions: [19, 41, 63, 85, 107], desc: "The gift of tongues is the special ability that God gives to certain members of the body of Christ (a) to speak to God in a language they have never learned and/or (b) to receive and communicate an immediate message…", scriptures: "1 Cor.12:10, 28; 14:13-19<br>Acts 2:1-13; 10:44–46; 19:1-7<br>Mark 16:17" },
+            { name: "Interpretation of Tongues", questions: [20, 42, 64, 86, 108], desc: "The gift of interpretation is the special ability that God gives to certain members of the body of Christ to make known in a vernacular the message of one who speaks in tongues.", scriptures: "1 Cor. 12:10, 30; 14:13, 26-28" },
+            { name: "Intercession", questions: [21, 43, 65, 87, 109], desc: "The special ability to pray for others persistently and specifically with tangible results.", scriptures: "1 Tim. 2:1; Eph. 6:18; Col. 4:12" },
+            { name: "Service", questions: [22, 44, 66, 88, 110], desc: "The gift of service is the special ability that God gives to certain members of the body of Christ to minister to the practical needs of others so that the ministry of other members is helped.", scriptures: "Romans 12:7; 1 Cor. 12:28" }
+        ];
+
+        function getId(name) { return name.toLowerCase().replace(/[^a-z0-9]/g, '-'); }
+        function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\r\n|\r|\n/g, '\n').replace(/\n/g, '<br>'); }
+
+        function buildTally() {
+            let html = '';
+            giftsData.forEach(g => {
+                html += `<tr><td>${g.name}</td><td><span id="score-${getId(g.name)}">0</span> <span class="score-max">/15</span></td></tr>`;
+            });
+            document.getElementById('tally-body').innerHTML = html;
+        }
+        buildTally();
+
+        // Render the tally table sorted by score (descending). Accepts a `scores` object produced by calculateScores().
+        function updateTally(scores) {
+            const tbody = document.getElementById('tally-body');
+            if (!tbody || !scores) return;
+            const sorted = Object.keys(scores).sort((a, b) => (scores[b] - scores[a]) || a.localeCompare(b));
+            let html = '';
+            sorted.forEach(name => {
+                html += `<tr><td>${name}</td><td><span id="score-${getId(name)}">${scores[name]}</span> <span class="score-max">/15</span></td></tr>`;
+            });
+            tbody.innerHTML = html;
+            const th = document.getElementById('tally-total-header');
+            if (th) th.setAttribute('aria-sort', 'descending');
+        }
+
+        function calculateScores() {
+            const scores = {};
+            giftsData.forEach(gift => {
+                let sum = 0;
+                gift.questions.forEach(q => {
+                    const sel = document.querySelector(`input[name="q${q}"]:checked`);
+                    sum += sel ? parseInt(sel.value, 10) : 0;
+                });
+                scores[gift.name] = sum;
+                const el = document.getElementById(`score-${getId(gift.name)}`);
+                if (el) el.textContent = sum;
+            });
+
+            // update the tally table so it's sorted by score
+            try { updateTally(scores); } catch (err) { /* ignore */ }
+
+            const sorted = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+            const primary = sorted.slice(0, 3);
+            const secondary = sorted.slice(3, 6);
+            const others = sorted.slice(6).sort((a, b) => a.localeCompare(b));
+
+            for (let i = 1; i <= 3; i++) {
+                const pEl = document.getElementById(`primary${i}`);
+                const sEl = document.getElementById(`secondary${i}`);
+                if (pEl) pEl.innerHTML = primary[i - 1] ? `${primary[i - 1]} (${scores[primary[i - 1]]})` : '';
+                if (sEl) sEl.innerHTML = secondary[i - 1] ? `${secondary[i - 1]} (${scores[secondary[i - 1]]})` : '';
+            }
+
+            const ordered = [...primary, ...secondary, ...others];
+            let explHtml = '';
+            ordered.forEach(name => {
+                const g = giftsData.find(x => x.name === name);
+                if (g) {
+                    explHtml += `<div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white"><h5 class="mb-0">${name} — Score ${scores[name]}/15</h5></div>
+                <div class="card-body"><p>${g.desc}</p><p><strong>Scripture References</strong><br>${g.scriptures}</p></div>
+            </div>`;
+                }
+            });
+            const giftExplEl = document.getElementById('gift-explanations');
+            if (giftExplEl) giftExplEl.innerHTML = explHtml || 'Select answers to see results.';
+
+            // --- Prepare print-specific sections ---
+            try {
+                // header (name key + generated time)
+                const ph = document.getElementById('print-header');
+                if (ph) {
+                    const nm = (document.getElementById('save-name') && document.getElementById('save-name').value.trim()) || '';
+                    ph.textContent = `Name: ${nm || '(unsaved)'} — Generated: ${new Date().toLocaleString()}`;
+                }
+
+                // primary + secondary explanations for print (appear after Primary/Secondary table)
+                const primNames = [...primary, ...secondary];
+                let printPrimaryHtml = '';
+                primNames.forEach(name => {
+                    const g = giftsData.find(x => x.name === name);
+                    if (g) {
+                        printPrimaryHtml += `<div class="card mb-3"><div class="card-header bg-primary text-white"><h5 class="mb-0">${name} — Score ${scores[name]}/15</h5></div><div class="card-body"><p>${g.desc}</p><p><strong>Scripture References</strong><br>${g.scriptures}</p></div></div>`;
+                    }
+                });
+                const pPrimEl = document.getElementById('print-gift-explanations-primary');
+                if (pPrimEl) pPrimEl.innerHTML = primNames.length ? `<h3>Primary & Secondary — Explanations</h3>${printPrimaryHtml}` : '<div class="text-muted">No primary or secondary gifts selected.</div>';
+
+                // review/reflect — render textarea contents for print
+                const prEl = document.getElementById('print-review');
+                if (prEl) {
+                    const notes1 = document.getElementById('notes1') ? document.getElementById('notes1').value : '';
+                    const notes2 = document.getElementById('notes2') ? document.getElementById('notes2').value : '';
+                    const notes3 = document.getElementById('notes3') ? document.getElementById('notes3').value : '';
+                    const makeField = (label, value) => `<div class="mb-3"><h6>${label}</h6><div class="p-2 border bg-white" style="white-space:pre-wrap">${escapeHtml(value)}</div></div>`;
+                    prEl.innerHTML = `<h3>Review / Reflect</h3>` + makeField('What ministries are you now performing (formally or informally) in the Church?', notes1) + makeField('Are there any of these ministries that you are not especially gifted for?', notes2) + makeField('In the light of your gift cluster and vocational status, what are some of the ministry models or roles suitable for you?', notes3);
+                }
+
+                // remaining gift explanations (print after Review/Reflect)
+                let printOthersHtml = '';
+                others.forEach(name => {
+                    const g = giftsData.find(x => x.name === name);
+                    if (g) {
+                        printOthersHtml += `<div class="card mb-3"><div class="card-header bg-secondary text-white"><h5 class="mb-0">${name} — Score ${scores[name]}/15</h5></div><div class="card-body"><p>${g.desc}</p><p><strong>Scripture References</strong><br>${g.scriptures}</p></div></div>`;
+                    }
+                });
+                const pOtherEl = document.getElementById('print-gift-explanations-others');
+                if (pOtherEl) pOtherEl.innerHTML = printOthersHtml.length ? `<h3>Other Gifts — Explanations</h3>${printOthersHtml}` : '<div class="text-muted">No additional gifts.</div>';
+            } catch (err) { /* ignore print prep errors */ }
+
+
+            // --- Assess progress (answered questions) ---
+            try {
+                const allRadioEls = Array.from(document.querySelectorAll('#assessment-form input[type="radio"]'));
+                const totalQuestions = new Set(allRadioEls.map(i => i.name)).size || 110;
+                const answered = new Set(Array.from(document.querySelectorAll('#assessment-form input[type="radio"]:checked')).map(i => i.name)).size;
+                const percent = Math.round((answered / totalQuestions) * 100);
+                const progBar = document.getElementById('assess-progress-bar');
+                if (progBar) {
+                    progBar.style.width = percent + '%';
+                    progBar.setAttribute('aria-valuenow', percent);
+                    progBar.textContent = `${percent}%`;
+                }
+                const progText = document.getElementById('assess-progress-text');
+                if (progText) progText.textContent = `${answered} / ${totalQuestions} answered`;
+
+                // mark unanswered rows for quick scanning
+                document.querySelectorAll('#assessment-form > .row.align-items-start').forEach(row => {
+                    const anyChecked = row.querySelector('input[type="radio"]:checked') !== null;
+                    row.classList.toggle('unanswered', !anyChecked);
+                });
+            } catch (err) { /* ignore */ }
+        }
+
+        // --- Print assembly: consolidate all printed sections into `#print-output` ---
+        function preparePrintOutput() {
+            try {
+                // ensure fresh calculations and print-blocks are populated
+                calculateScores();
+                const out = document.getElementById('print-output');
+                if (!out) return;
+
+                // 1) Tally table (sorted)
+                const tallyTable = document.querySelector('#tab-tally table');
+                let html = '';
+                if (tallyTable) {
+                    html += `<h2>Step 2 — Tally</h2>${tallyTable.outerHTML}`;
+                }
+
+                // 2) Primary & Secondary table (the second table in #tab-tally)
+                const tables = Array.from(document.querySelectorAll('#tab-tally table'));
+                if (tables[1]) {
+                    html += `<h2 class="mt-4">Primary and Secondary Gifts</h2>${tables[1].outerHTML}`;
+                }
+
+                // 3) Explanations for primary & secondary (prebuilt)
+                const primExpl = document.getElementById('print-gift-explanations-primary');
+                if (primExpl) html += primExpl.innerHTML;
+
+                // 4) Review / Reflect (prebuilt read-only block)
+                const pr = document.getElementById('print-review');
+                if (pr) html += pr.innerHTML;
+
+                // 5) Other gifts explanations (prebuilt)
+                const others = document.getElementById('print-gift-explanations-others');
+                if (others) html += others.innerHTML;
+
+                out.innerHTML = html;
+            } catch (err) {
+                console.warn('preparePrintOutput failed', err);
+            }
+        }
+
+        function cleanupPrintOutput() {
+            const out = document.getElementById('print-output');
+            if (out) out.innerHTML = '';
+        }
+
+        window.addEventListener('beforeprint', preparePrintOutput);
+        window.addEventListener('afterprint', cleanupPrintOutput);
+        if (window.matchMedia) {
+            const m = window.matchMedia('print');
+            const listener = (ev) => { if (ev.matches) preparePrintOutput(); else cleanupPrintOutput(); };
+            if (typeof m.addEventListener === 'function') m.addEventListener('change', listener); else m.addListener(listener);
+        }
+
+        let _lastAutoScrollAt = 0;
+        // Auto-scroll helper: move to next unanswered question row and focus first radio
+        function scrollToNextUnansweredRow(currentRow) {
+            if (!currentRow) return;
+            // only enable on large screens (Bootstrap 'lg' and up)
+            if (!window.matchMedia('(min-width: 992px)').matches) return;
+            const now = Date.now();
+            if (now - _lastAutoScrollAt < 500) return; // throttle frequent calls
+            _lastAutoScrollAt = now;
+
+            // only act when the Assess pane is visible
+            const assessPane = document.getElementById('tab-assess');
+            if (assessPane && !assessPane.classList.contains('show')) return;
+
+            const rows = Array.from(document.querySelectorAll('#assessment-form > .row.align-items-start'));
+            const idx = rows.indexOf(currentRow);
+            if (idx === -1) return;
+
+            const next = rows.slice(idx + 1).find(r => r.classList.contains('unanswered'));
+            if (next) {
+                const firstInput = next.querySelector('input[type="radio"]');
+
+                // focus without scrolling to avoid focus-induced jumps
+                if (firstInput) {
+                    try { firstInput.focus({ preventScroll: true }); } catch (e) { firstInput.focus(); }
+                }
+
+                // only scroll if not already fully visible
+                const rect = next.getBoundingClientRect();
+                const inView = rect.top >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight);
+                if (!inView) {
+                    next.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                }
+
+                // gentle highlight (longer, softer)
+                next.classList.add('question-focus');
+                window.setTimeout(() => next.classList.remove('question-focus'), 800);
+
+                // ensure input retains focus after scroll completes (without causing scroll)
+                if (firstInput) {
+                    window.setTimeout(() => {
+                        try { firstInput.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+                    }, 500);
+                }
+            } else {
+                // no unanswered remaining — focus progress bar as a cue
+                const prog = document.getElementById('assess-progress-bar');
+                if (prog) {
+                    try { prog.focus({ preventScroll: true }); } catch (e) { if (prog.focus) prog.focus(); }
+                }
+            }
+        }
+
+        const STORAGE_KEY_BASE = 'spiritualGiftsA.form';
+
+        function currentStorageKey() {
+            const nameEl = document.getElementById('save-name');
+            const name = nameEl ? nameEl.value.trim() : '';
+            return STORAGE_KEY_BASE + (name ? '.' + encodeURIComponent(name) : '.default');
+        }
+
+        function updateSavedStamp() {
+            const key = currentStorageKey();
+            const raw = localStorage.getItem(key);
+            const stamp = document.getElementById('saved-stamp');
+            if (!stamp) return;
+            if (!raw) {
+                stamp.textContent = 'No saved data';
+            } else {
+                try {
+                    const data = JSON.parse(raw);
+                    stamp.textContent = data._savedAt ? `Saved ${new Date(data._savedAt).toLocaleString()}` : 'Saved';
+                } catch (err) { stamp.textContent = 'Saved (corrupt)'; }
+            }
+        }
+
+        function saveFormToLocalStorage() {
+            const data = {};
+            // save checked radios
+            document.querySelectorAll('#assessment-form input[type="radio"]:checked').forEach(i => {
+                data[i.name] = i.value;
+            });
+            // save textareas
+            ['notes1','notes2','notes3'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) data[id] = el.value;
+            });
+            data._savedAt = new Date().toISOString();
+            const key = currentStorageKey();
+            localStorage.setItem(key, JSON.stringify(data));
+            updateSavedStamp();
+        }
+
+        function loadFormFromLocalStorage() {
+            const key = currentStorageKey();
+            const raw = localStorage.getItem(key);
+            if (!raw) return false;
+            let data;
+            try { data = JSON.parse(raw); } catch (err) { console.warn('Saved data parse error', err); return false; }
+            // clear current selections first
+            document.querySelectorAll('#assessment-form input[type="radio"]').forEach(i => i.checked = false);
+            Object.keys(data).forEach(k => {
+                if (k.startsWith('q')) {
+                    const selector = `input[name="${k}"][value="${data[k]}"]`;
+                    const el = document.querySelector(selector);
+                    if (el) el.checked = true;
+                } else if (k === 'notes1' || k === 'notes2' || k === 'notes3') {
+                    const ta = document.getElementById(k);
+                    if (ta) ta.value = data[k];
+                }
+            });
+            const stamp = document.getElementById('saved-stamp');
+            if (stamp && data._savedAt) stamp.textContent = `Saved ${new Date(data._savedAt).toLocaleString()}`;
+            return true;
+        }
+
+        function clearStoredForm() {
+            const key = currentStorageKey();
+            localStorage.removeItem(key);
+            document.getElementById('assessment-form').reset();
+            const stamp = document.getElementById('saved-stamp');
+            if (stamp) stamp.textContent = 'No saved data';
+            calculateScores();
+        }
+
+        document.addEventListener('change', e => {
+            if (e.target.name && e.target.name.startsWith('q')) {
+                calculateScores();
+                saveFormToLocalStorage();
+                // after answering a question, auto-scroll to next unanswered (when Assess is visible)
+                try {
+                    const row = e.target.closest('.row.align-items-start');
+                    if (row) scrollToNextUnansweredRow(row);
+                } catch (err) { /* ignore */ }
+            }
+        });
+
+        // Prevent arrow keys from changing radio selection for assessment questions
+        // (keep Tab/Space/Enter behavior for accessibility)
+        document.addEventListener('keydown', e => {
+            const t = e.target;
+            if (!t || !t.matches) return;
+            if (t.matches('input[type="radio"]') && t.name && t.name.startsWith('q')) {
+                const arrowKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+                if (arrowKeys.includes(e.key) || [37,38,39,40].includes(e.keyCode)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        // save textareas on input (include review textareas outside the assessment form)
+        document.querySelectorAll('#assessment-form textarea, #tab-review textarea').forEach(ta => {
+            ta.addEventListener('input', () => saveFormToLocalStorage());
+        });
+
+        // reset scores (clears radio selections only)
+        const resetBtn = document.getElementById('reset-scores');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => {
+                document.querySelectorAll('#assessment-form input[type="radio"]').forEach(i => i.checked = false);
+                calculateScores();
+                const stamp = document.getElementById('saved-stamp');
+                if (stamp) stamp.textContent = 'Unsaved changes';
+            });
+        }
+
+        // reload button (load from storage for given name)
+        const reloadBtn = document.getElementById('reload-saved');
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', () => {
+                ensureUserEntryExists();
+                loadFormFromLocalStorage();
+                calculateScores();
+            });
+        }
+
+        // clear-saved behaviour (already wired to clearStoredForm above)
+        const clearBtn = document.getElementById('clear-saved');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (!confirm('Delete saved answers for the current name/key?')) return;
+                clearStoredForm();
+            });
+        }
+
+        // update saved stamp when name changes (so user sees whether a key already has saved data)
+        const LAST_NAME_KEY = STORAGE_KEY_BASE + '.lastName';
+        function saveLastName(name) {
+            if (typeof name !== 'string') return;
+            localStorage.setItem(LAST_NAME_KEY, name);
+        }
+        function loadLastName() {
+            return localStorage.getItem(LAST_NAME_KEY) || '';
+        }
+
+        // ensure a storage entry exists for the current name key; create a default empty record if missing
+        function ensureUserEntryExists() {
+            const key = currentStorageKey();
+            const raw = localStorage.getItem(key);
+            if (raw) return false; // already exists
+            const defaults = { notes1: '', notes2: '', notes3: '', _savedAt: new Date().toISOString() };
+            localStorage.setItem(key, JSON.stringify(defaults));
+            updateSavedStamp();
+            return true; // created
+        }
+
+        const nameEl = document.getElementById('save-name');
+        if (nameEl) {
+            // prefill preserved name (if any) so key persists until user changes it
+            const preserved = loadLastName();
+            if (preserved) nameEl.value = preserved;
+
+            // persist the name as the user types (keeps name across reloads)
+            nameEl.addEventListener('input', () => {
+                saveLastName(nameEl.value.trim());
+                updateSavedStamp();
+            });
+
+            // on blur, silently load (or create) saved answers for that name
+            nameEl.addEventListener('blur', () => {
+                ensureUserEntryExists();
+                loadFormFromLocalStorage();
+                calculateScores();
+            });
+
+            // Enter will reload (create key if missing) without alerting
+            nameEl.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    ensureUserEntryExists();
+                    loadFormFromLocalStorage();
+                    calculateScores();
+                }
+            });
+        }
+
+        // --- Bootstrap tabs: use native tab component and persist last-open tab ---
+        (function() {
+            const tabSelector = '#section-tabs a[data-bs-toggle="tab"]';
+            const defaultHref = '#tab-assess';
+            const savedHref = localStorage.getItem(STORAGE_KEY_BASE + '.lastTab') || defaultHref;
+            // show saved tab if present
+            const triggerEl = document.querySelector(`#section-tabs a[href="${savedHref}"]`);
+            if (triggerEl) {
+                const bsTab = new bootstrap.Tab(triggerEl);
+                bsTab.show();
+            }
+            // persist and refresh scores when tabs change
+            document.querySelectorAll(tabSelector).forEach(a => {
+                a.addEventListener('shown.bs.tab', e => {
+                    const href = e.target.getAttribute('href');
+                    try { localStorage.setItem(STORAGE_KEY_BASE + '.lastTab', href); } catch (err) {}
+                    try { calculateScores(); } catch (err) {}
+                });
+            });
+        })();
+
+        // initial restore (uses default key if name is empty)
+        updateSavedStamp();
+        loadFormFromLocalStorage();
+        calculateScores(); // initial
+
+
+    </script>
+</body>
+
+</html>
